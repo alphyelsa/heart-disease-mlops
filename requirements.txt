@@ -1,2 +1,6 @@
 
 pandas
+scikit-learn
+mlflow-skinny
+matplotlib
+seaborn

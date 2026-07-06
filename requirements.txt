@@ -1,7 +1,12 @@
-
 pandas
 scikit-learn
 mlflow-skinny
 matplotlib
 seaborn
 numpy
+flask
+sqlalchemy
+alembic
+flask_cors
+aiohttp
+mlflow

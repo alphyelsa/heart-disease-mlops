@@ -43,39 +43,18 @@ async def log_requests(request: Request, call_next):
 
 
 # Load production model artifact
-MODEL_PATH = os.getenv("MODEL_PATH", "/app/mlruns/0/")
-
-model = None
+MODEL_PATH = os.getenv("MODEL_PATH", "/app/model")
 
 try:
-    load_start = time.time()
-
-    model_run_dirs = [
-        d for d in os.listdir(MODEL_PATH)
-        if os.path.isdir(os.path.join(MODEL_PATH, d))
-    ]
-
-    latest_run = sorted(model_run_dirs)[-1]
-
-    model_path = (
-        f"{MODEL_PATH}/{latest_run}/artifacts/model"
+    model = mlflow.sklearn.load_model(
+        MODEL_PATH
     )
 
-    model = mlflow.sklearn.load_model(model_path)
-
-    load_time = time.time() - load_start
-
-    logger.info(
-        "Model loaded successfully | path=%s load_time=%.4fs",
-        model_path,
-        load_time
-    )
+    print("Model loaded successfully")
 
 except Exception as e:
-    logger.exception(
-        "Model loading failed | error=%s",
-        str(e)
-    )
+    model = None
+    print(f"Model loading failed: {e}")
 
 
 class PatientData(BaseModel):

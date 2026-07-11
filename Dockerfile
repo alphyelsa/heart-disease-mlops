@@ -11,9 +11,10 @@ WORKDIR /app
 COPY --from=builder /root/.local /root/.local
 COPY ./src ./src
 COPY ./src/mlruns ./mlruns
+COPY ./model ./model
 
 ENV PATH=/root/.local/bin:$PATH
-ENV MODEL_PATH=/app/mlruns/0/
+ENV MODEL_PATH=/app/model/
 
 EXPOSE 8000
 CMD ["uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8000"]

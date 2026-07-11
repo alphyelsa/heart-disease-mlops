@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import mlflow
 from matplotlib import pyplot as plt
@@ -20,6 +21,7 @@ mlflow.set_tracking_uri(TRACKING_URI)
 
 ARTIFACT_DIR = os.path.join(SCRIPT_DIR, "artifacts")
 PLOTS_DIR = os.path.join(ARTIFACT_DIR, "plots")
+MODEL_DIR = os.path.join(SCRIPT_DIR, os.pardir, "model")
 
 os.makedirs(PLOTS_DIR, exist_ok=True)
 
@@ -89,34 +91,18 @@ def train_and_log():
         "RandomForest": RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
     }
 
+    best_auc = 0
+    best_model = None
+    best_name = None
+
     for model_name, clf in models.items():
         with mlflow.start_run(run_name=model_name):
-            # Create full pipeline
+
             full_pipeline = Pipeline(steps=[
                 ("preprocessor", get_preprocessing_pipeline()),
                 ("classifier", clf)
             ])
 
-            # Cross-validation
-            cv_results = cross_validate(full_pipeline, X_train, y_train, cv=5,
-                                        scoring=[
-                                            "accuracy",
-                                            "precision",
-                                            "recall",
-                                            "roc_auc"
-                                        ])
-
-            # Log params & mean metrics
-            mlflow.log_param("model_type", model_name)
-            mlflow.log_params(clf.get_params())
-            mlflow.log_metrics({
-                "cv_accuracy": cv_results["test_accuracy"].mean(),
-                "cv_precision": cv_results["test_precision"].mean(),
-                "cv_recall": cv_results["test_recall"].mean(),
-                "cv_roc_auc": cv_results["test_roc_auc"].mean()
-            })
-
-            # Fit final model
             full_pipeline.fit(X_train, y_train)
 
             results = evaluate_model(full_pipeline, X_test, y_test)
@@ -128,18 +114,29 @@ def train_and_log():
                 "test_roc_auc": results["roc_auc"]
             })
 
-            save_confusion_matrix(full_pipeline, X_test, y_test, model_name)
-            save_roc_curve(full_pipeline, X_test, y_test, model_name)
-            save_pr_curve(full_pipeline, X_test, y_test, model_name)
-
-            # Log model artifact safely
             mlflow.sklearn.log_model(
                 sk_model=full_pipeline,
                 name="model",
                 skops_trusted_types=["numpy.dtype"]
             )
-            print(f"Successfully logged {model_name} to MLflow.")
 
+            # keep best model
+            if results["roc_auc"] > best_auc:
+                best_auc = results["roc_auc"]
+                best_model = full_pipeline
+                best_name = model_name
+
+    # Save production model outside MLflow tracking folder
+    if os.path.exists(MODEL_DIR):
+        shutil.rmtree(MODEL_DIR)
+
+    mlflow.sklearn.save_model(
+        sk_model=best_model,
+        path="model",
+        serialization_format="cloudpickle"
+    )
+
+    print(f"Production model saved: {best_name}")
 
 if __name__ == "__main__":
     train_and_log()

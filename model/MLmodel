@@ -4,19 +4,18 @@ flavors:
       conda: conda.yaml
       virtualenv: python_env.yaml
     loader_module: mlflow.sklearn
-    model_path: model.skops
+    model_path: model.pkl
     predict_fn: predict
     python_version: 3.12.10
   sklearn:
     code: null
-    pickled_model: model.skops
-    serialization_format: skops
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
     sklearn_version: 1.9.0
-    skops_trusted_types:
-    - numpy.dtype
+    skops_trusted_types: null
 mlflow_version: 3.14.0
 model_id: null
-model_size_bytes: 2815917
-model_uuid: c8aa372360a8429eaf50d378f6ec8d02
+model_size_bytes: 391528
+model_uuid: f4a798ab14394591a94606b077efb5fe
 prompts: null
-utc_time_created: '2026-07-11 13:36:59.699330'
+utc_time_created: '2026-07-11 13:54:49.255894'

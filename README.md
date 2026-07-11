@@ -2,7 +2,7 @@
 An enterprise-grade, reproducible end-to-end MLOps solution for heart disease risk classification utilizing the UCI Cleveland dataset. This repository automates data ingestion, model training, experiment tracking, continuous integration (CI/CD), multi-stage containerization, Kubernetes orchestration, and Prometheus-ready telemetry.
 
 ## System Architecture
-The pipeline implements an isolated, reproducible design where every element—from training to serving—is versioned and validated.
+The pipeline implements an isolated, reproducible design where every element, from training to serving, is versioned and validated.
 
 ```
        [ GitHub Push ] ---> [ CI/CD Action: Lint & Unit Tests ]
@@ -200,7 +200,7 @@ kubectl get secret monitoring-grafana \
 kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090
 ```
 
-Open:
+Open ip:
 
 ```
 http://localhost:9090

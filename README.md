@@ -146,9 +146,74 @@ Expose the cluster LoadBalancer to bind ingress traffic to your host network env
 minikube service heart-disease-service
 ```
 
-### 5. Monitoring & Observability
-The API incorporates an inline Prometheus instrumentator middleware. It records request volumes, endpoint error distributions, and system processing latency.
+## Monitoring & Observability
 
-Production Scrape Port: Exposed under /metrics out-of-the-box.
+The application exposes Prometheus metrics through the `/metrics` endpoint 
+using `prometheus-fastapi-instrumentator`.
 
-Grafana Integration: Configure your Prometheus data source to parse metrics fields such as http_requests_total and http_request_duration_seconds to build out dashboards for service-level objective tracking.
+### 1. Install Prometheus and Grafana
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install monitoring prometheus-community/kube-prometheus-stack
+```
+
+### 2. Deploy the ServiceMonitor
+
+```bash
+kubectl apply -f deployment/servicemonitor.yaml
+```
+
+### 3. Access Grafana
+
+Start port forwarding:
+
+```bash
+kubectl port-forward svc/monitoring-grafana 3000:80
+```
+
+Open:
+
+```
+http://localhost:3000
+```
+
+Default username:
+
+```
+admin
+```
+
+Retrieve the admin password:
+
+```bash
+kubectl get secret monitoring-grafana \
+-o jsonpath="{.data.admin-password}" | base64 --decode
+```
+
+### 4. Access Prometheus
+
+```bash
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090
+```
+
+Open:
+
+```
+http://localhost:9090
+```
+
+### 5. Import Dashboard
+
+1. Open Grafana.
+2. Navigate to **Dashboards → Import**.
+3. Upload `monitoring/grafana-dashboard.json`.
+4. Select the Prometheus data source.
+5. Save the dashboard.
+
+The dashboard visualizes:
+- API request rate
+- Request latency
+- Prediction endpoint traffic
+- HTTP error rates

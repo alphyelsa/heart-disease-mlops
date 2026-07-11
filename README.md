@@ -15,7 +15,7 @@ The pipeline implements an isolated, reproducible design where every element, fr
 ```
 
 ## Project Structure
-
+Below is the project structure
 ```
 heart-disease-mlops/
 ├── .github/workflows/    # CI/CD pipelines (GitHub Actions)

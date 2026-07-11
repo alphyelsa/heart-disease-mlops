@@ -10,3 +10,8 @@ alembic
 flask_cors
 aiohttp
 mlflow
+
+fastapi
+pydantic
+pandas
+mlflow-skinny

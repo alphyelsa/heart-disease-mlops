@@ -15,3 +15,5 @@ fastapi
 pydantic
 pandas
 mlflow-skinny
+pydantic
+prometheus-fastapi-instrumentator

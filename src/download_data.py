@@ -18,9 +18,14 @@ def fetch_heart_disease_data(output_path="data/raw/heart.csv"):
 
     # Read and clean structural missing values denoted by '?'
     df = pd.read_csv(output_path, names=columns, na_values="?")
+    print(df.head())
 
     # Target modification for binary classification (0 = no disease, >0 = disease)
     df['target'] = (df['target'] > 0).astype(int)
+
+    print("Checking null values...")
+    print(df.isnull().sum())
+    print("-----------")
 
     # Handle missing entries deterministically for baseline
     df = df.fillna(df.median())

@@ -132,7 +132,9 @@ Deploy the stateless serving layer across a target cluster via core primitives.
 ```
 minikube start
 # Direct the local shell to use Minikube's Docker daemon
-eval $(minikube docker-env)
+# eval $(minikube docker-env)
+minikube docker-env --shell powershell | Invoke-Expression
+docker info
 # Re-build image directly inside the cluster daemon context
 docker build -t heart-disease-api:latest .
 ```

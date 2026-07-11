@@ -83,40 +83,38 @@ Open your browser to http://localhost:5000 to inspect hyperparameters, evaluatio
 ## Testing & Continuous Integration (CI/CD)
 The code quality framework enforces rigorous checks before integration.
 
-Local Unit Testing
+### 1. Local Unit Testing
 To execute the comprehensive Pytest test suites across the features and serving modules:
 
-Bash
+```
 pytest tests/ -v
-Automated GitHub Actions Workflow
+```
+
+### 2. Automated GitHub Actions Workflow
 Every branch push or pull request to main fires an automated pipeline that:
+- Provisions an isolated Ubuntu-latest environment.
+- Formats and lints code via flake8.
+- Validates functional integrity using pytest.
+- Executes the full train.py pipeline to guarantee code execution stability.
 
-Provisions an isolated Ubuntu-latest environment.
-
-Formats and lints code via flake8.
-
-Validates functional integrity using pytest.
-
-Executes the full train.py pipeline to guarantee code execution stability.
-
-🐳 Containerization & Local Serving
+### 3. Containerization & Local Serving
 The inference layer uses a multi-stage Docker configuration to separate compilation dependencies from runtime environments, resulting in a minimal attack surface and small image footprint.
 
-Build the Image
-Bash
+#### 3.1 Build the Image
+```
 docker build -t heart-disease-api:latest .
-Spin Up the Application
-Bash
-docker run -d -p 8000:8000 --name heart-disease-service heart-disease-api:latest
-Verify Endpoints
+```
+#### 3.2 Spin Up the Application
+```
+docker run -d -p 8000:8000 heart-disease-api:latest
+```
+#### 3.3 Verify Endpoints
 Inference Endpoint: Send a POST payload to http://localhost:8000/predict
-
 Swagger Documentation: Explore interface schema maps at http://localhost:8000/docs
-
 Telemetry Exporter: Scrape raw Prometheus tracking vectors at http://localhost:8000/metrics
 
 Sample Prediction Request Payload
-Bash
+```
 curl -X 'POST' \
   'http://localhost:8000/predict' \
   -H 'Content-Type: application/json' \
@@ -125,25 +123,30 @@ curl -X 'POST' \
   "fbs": 1.0, "restecg": 0.0, "thalach": 150.0, "exang": 0.0,
   "oldpeak": 2.3, "slope": 0.0, "ca": 0.0, "thal": 1.0
 }'
-☸️ Production Kubernetes Deployment
+```
+
+### 4.Production Kubernetes Deployment
 Deploy the stateless serving layer across a target cluster via core primitives.
 
-1. Initialize Minikube and Share the Docker Environment
-Bash
+#### 4.1. Initialize Minikube and Share the Docker Environment
+```
 minikube start
 # Direct the local shell to use Minikube's Docker daemon
 eval $(minikube docker-env)
 # Re-build image directly inside the cluster daemon context
 docker build -t heart-disease-api:latest .
-2. Apply Manifest Layouts
-Bash
+```
+#### 4.2. Apply Manifest Layouts
+```
 kubectl apply -f deployment/deployment.yaml
-3. Accessing the Service Application
+```
+#### 4.3. Accessing the Service Application
 Expose the cluster LoadBalancer to bind ingress traffic to your host network environment:
-
-Bash
+```
 minikube service heart-disease-service
-📈 Monitoring & Observability
+```
+
+### 5. Monitoring & Observability
 The API incorporates an inline Prometheus instrumentator middleware. It records request volumes, endpoint error distributions, and system processing latency.
 
 Production Scrape Port: Exposed under /metrics out-of-the-box.
